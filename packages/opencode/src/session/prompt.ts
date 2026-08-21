@@ -29,9 +29,9 @@ import { pathToFileURL, fileURLToPath } from "url"
 import { Config } from "@/config/config"
 import { ConfigMarkdown } from "@/config/markdown"
 import { SessionSummary } from "./summary"
-import { Focus } from "./focus"
-import { Cost } from "./cost"
-import { Goal } from "./goal"
+import { Service as FocusService, node as FocusNode } from "@/session/focus"
+import { Service as CostService, node as CostNode } from "@/session/cost"
+import { Service as GoalService, node as GoalNode } from "@/session/goal"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { SessionProcessor } from "./processor"
 import { Tool } from "@/tool/tool"
@@ -120,6 +120,9 @@ const layer = Layer.effect(
     const sessions = yield* Session.Service
     const agents = yield* Agent.Service
     const provider = yield* Provider.Service
+    const focus = yield* FocusService
+    const cost = yield* CostService
+    const goal = yield* GoalService
     const processor = yield* SessionProcessor.Service
     const compaction = yield* SessionCompaction.Service
     const plugin = yield* Plugin.Service
@@ -1365,11 +1368,12 @@ const layer = Layer.effect(
       const model = session.model
         ? { providerID: session.model.providerID, modelID: session.model.id }
         : yield* currentModel(sessionID)
-      return yield* createUserMessage({ sessionID, agent: agentName, model, parts: [{ type: "text", text }] })
+      return yield* createUserMessage({ sessionID, agent: agentName, model, parts: [{ type: "text", text }] }).pipe(
+        Effect.orDie,
+      )
     })
 
     const handleFocus = Effect.fn("SessionPrompt.handleFocus")(function* (input: CommandInput) {
-      const focus = yield* Focus.Service
       const arg = input.arguments.trim()
       if (arg === "" || arg === "list") {
         const paths = yield* focus.list()
@@ -1391,7 +1395,6 @@ const layer = Layer.effect(
     })
 
     const handleCost = Effect.fn("SessionPrompt.handleCost")(function* (input: CommandInput) {
-      const cost = yield* Cost.Service
       const verbose = input.arguments.trim() === "verbose"
       const report = yield* cost.report(input.sessionID, verbose)
       const text = yield* cost.format(report, verbose)
@@ -1399,7 +1402,6 @@ const layer = Layer.effect(
     })
 
     const handleGoal = Effect.fn("SessionPrompt.handleGoal")(function* (input: CommandInput) {
-      const goal = yield* Goal.Service
       const arg = input.arguments.trim()
       if (arg === "stop") {
         yield* goal.stop()
@@ -1717,9 +1719,9 @@ export const node = LayerNode.make({
     EventV2Bridge.node,
     RuntimeFlags.node,
     Database.node,
-    Focus.node,
-    Cost.node,
-    Goal.node,
+    FocusNode,
+    CostNode,
+    GoalNode,
   ],
 })
 

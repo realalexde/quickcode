@@ -72,7 +72,7 @@ const layer = Layer.effect(
     const sessions = yield* Session.Service
 
     const report = Effect.fn("Cost.report")(function* (sessionID: SessionID, verbose: boolean) {
-      const messages = yield* sessions.messages({ sessionID })
+      const messages = yield* sessions.messages({ sessionID }).pipe(Effect.orDie)
       const perMessage: Breakdown[] = []
       const total = {
         input: 0,
@@ -85,10 +85,9 @@ const layer = Layer.effect(
       }
 
       for (const message of messages) {
-        const assistant = message.info.assistant
-        if (!assistant) continue
-        const tokens = assistant.tokens
-        const price = priceFor(assistant.providerID, assistant.modelID)
+        if (message.info.role !== "assistant") continue
+        const tokens = message.info.tokens
+        const price = priceFor(message.info.providerID, message.info.modelID)
         const cost =
           (tokens.input / 1e6) * price.input +
           (tokens.output / 1e6) * price.output +
@@ -104,7 +103,7 @@ const layer = Layer.effect(
         if (verbose) {
           perMessage.push({
             id: message.info.id,
-            model: `${assistant.providerID}/${assistant.modelID}`,
+            model: `${message.info.providerID}/${message.info.modelID}`,
             input: tokens.input,
             output: tokens.output,
             reasoning: tokens.reasoning,
@@ -150,4 +149,3 @@ const layer = Layer.effect(
 
 export const node = LayerNode.make({ service: Service, layer, deps: [Session.node] })
 
-export * as Cost from "."

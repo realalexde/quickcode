@@ -60,7 +60,7 @@ function app(modules: Runtime, options: CallOptions) {
     modules.HttpApiApp.routes.pipe(
       Layer.provide(
         ConfigProvider.layer(
-          ConfigProvider.fromUnknown({ OPENCODE_SERVER_PASSWORD: password, OPENCODE_SERVER_USERNAME: username }),
+          ConfigProvider.fromUnknown({ QUICKCODE_SERVER_PASSWORD: password, QUICKCODE_SERVER_USERNAME: username }),
         ),
       ),
     ),

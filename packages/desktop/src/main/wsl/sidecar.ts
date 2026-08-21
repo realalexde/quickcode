@@ -19,7 +19,7 @@ export async function spawnWslSidecar(
   opts: { onLine?: (line: WslCommandLine) => void; healthTimeoutMs?: number } = {},
 ): Promise<WslSidecar> {
   const opencode = await resolveWslOpencode(distro)
-  if (!opencode) throw new Error(nativeT("desktop.wsl.error.opencodeNotInstalled", { distro }))
+  if (!opencode) throw new Error(nativeT("desktop.wsl.error.quickcodeNotInstalled", { distro }))
 
   const port = await allocatePort()
   const password = randomUUID()
@@ -30,10 +30,10 @@ export async function spawnWslSidecar(
     'PATH=$(awk -v RS=: -v ORS=: \'$0 !~ /^\\/mnt\\//\' <<<"$PATH" | sed "s/:$//")',
     "export PATH",
     "export WSLENV=",
-    "export OPENCODE_EXPERIMENTAL_DISABLE_FILEWATCHER=true",
-    "export OPENCODE_CLIENT=desktop",
-    `export OPENCODE_SERVER_USERNAME=${shellEscape(username)}`,
-    `export OPENCODE_SERVER_PASSWORD=${shellEscape(password)}`,
+    "export QUICKCODE_EXPERIMENTAL_DISABLE_FILEWATCHER=true",
+    "export QUICKCODE_CLIENT=desktop",
+    `export QUICKCODE_SERVER_USERNAME=${shellEscape(username)}`,
+    `export QUICKCODE_SERVER_PASSWORD=${shellEscape(password)}`,
     'export XDG_STATE_HOME="$HOME/.local/state"',
     `exec ${shellEscape(opencode)} --print-logs --log-level ${app.isPackaged ? "WARN" : "INFO"} serve --hostname 0.0.0.0 --port ${port}`,
   ].join("\n")
