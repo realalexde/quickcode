@@ -30,6 +30,7 @@ import { Config } from "@/config/config"
 import { ConfigMarkdown } from "@/config/markdown"
 import { SessionSummary } from "./summary"
 import { Focus } from "./focus"
+import { Cost } from "./cost"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { SessionProcessor } from "./processor"
 import { Tool } from "@/tool/tool"
@@ -1388,9 +1389,18 @@ const layer = Layer.effect(
       )
     })
 
+    const handleCost = Effect.fn("SessionPrompt.handleCost")(function* (input: CommandInput) {
+      const cost = yield* Cost.Service
+      const verbose = input.arguments.trim() === "verbose"
+      const report = yield* cost.report(input.sessionID, verbose)
+      const text = yield* cost.format(report, verbose)
+      return yield* infoMessage(input.sessionID, text)
+    })
+
     const command = Effect.fn("SessionPrompt.command")(function* (input: CommandInput) {
       const name = input.command
       if (name === "focus") return yield* handleFocus(input)
+      if (name === "cost") return yield* handleCost(input)
 
       yield* Effect.logInfo("command", {
         "session.id": input.sessionID,
@@ -1664,6 +1674,7 @@ export const node = LayerNode.make({
     RuntimeFlags.node,
     Database.node,
     Focus.node,
+    Cost.node,
   ],
 })
 

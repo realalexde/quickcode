@@ -96,6 +96,15 @@ const layer = Layer.effect(
         },
         hints: ["$ARGUMENTS"],
       }
+      commands.cost = {
+        name: "cost",
+        description: "show session token usage and estimated cost",
+        source: "command",
+        get template() {
+          return ""
+        },
+        hints: ["$ARGUMENTS"],
+      }
 
       for (const [name, command] of Object.entries(cfg.command ?? {})) {
         commands[name] = {
