@@ -22,6 +22,7 @@ import { Location } from "@opencode-ai/core/location"
 import { LocationServiceMap, locationServiceMapLayer } from "@opencode-ai/core/location-services"
 import { Reference } from "@opencode-ai/core/reference"
 import { MCP } from "@/mcp"
+import { Focus } from "./focus"
 import { PermissionV1 } from "@opencode-ai/core/v1/permission"
 
 export function provider(model: Provider.Model) {
@@ -69,6 +70,8 @@ const layer = Layer.effect(
         const references = yield* Effect.gen(function* () {
           return (yield* (yield* Reference.Service).list()).filter((reference) => reference.description !== undefined)
         }).pipe(Effect.provide(locations.get(Location.Ref.make({ directory: AbsolutePath.make(ctx.directory) }))))
+        const focus = yield* Focus.Service
+        const focusText = yield* focus.render()
         return [
           [
             `You are powered by the model named ${model.api.id}. The exact model ID is ${model.providerID}/${model.api.id}`,
@@ -99,6 +102,7 @@ const layer = Layer.effect(
                   ]),
                 "</available_references>",
               ].join("\n"),
+          focusText,
         ].filter((part): part is string => part !== undefined)
       }),
 
@@ -146,7 +150,7 @@ const locationServiceMapNode = LayerNode.make({
 export const node = LayerNode.make({
   service: Service,
   layer: layer,
-  deps: [Skill.node, MCP.node, locationServiceMapNode],
+  deps: [Skill.node, MCP.node, locationServiceMapNode, Focus.node],
 })
 
 export * as SystemPrompt from "./system"

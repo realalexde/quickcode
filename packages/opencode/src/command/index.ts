@@ -87,6 +87,16 @@ const layer = Layer.effect(
         hints: hints(PROMPT_REVIEW),
       }
 
+      commands.focus = {
+        name: "focus",
+        description: "scope the agent's attention to specific paths",
+        source: "command",
+        get template() {
+          return ""
+        },
+        hints: ["$ARGUMENTS"],
+      }
+
       for (const [name, command] of Object.entries(cfg.command ?? {})) {
         commands[name] = {
           name,

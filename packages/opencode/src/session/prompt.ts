@@ -29,6 +29,7 @@ import { pathToFileURL, fileURLToPath } from "url"
 import { Config } from "@/config/config"
 import { ConfigMarkdown } from "@/config/markdown"
 import { SessionSummary } from "./summary"
+import { Focus } from "./focus"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { SessionProcessor } from "./processor"
 import { Tool } from "@/tool/tool"
@@ -1353,7 +1354,44 @@ const layer = Layer.effect(
       return yield* state.startShell(input.sessionID, lastAssistant(input.sessionID), shellImpl(input, ready), ready)
     })
 
+    const infoMessage = Effect.fn("SessionPrompt.infoMessage")(function* (
+      sessionID: SessionID,
+      text: string,
+    ) {
+      const session = yield* sessions.get(sessionID).pipe(Effect.orDie)
+      const agentName = session.agent ?? (yield* agents.defaultInfo()).name
+      const model = session.model
+        ? { providerID: session.model.providerID, modelID: session.model.id }
+        : yield* currentModel(sessionID)
+      return yield* createUserMessage({ sessionID, agent: agentName, model, parts: [{ type: "text", text }] })
+    })
+
+    const handleFocus = Effect.fn("SessionPrompt.handleFocus")(function* (input: CommandInput) {
+      const focus = yield* Focus.Service
+      const arg = input.arguments.trim()
+      if (arg === "" || arg === "list") {
+        const paths = yield* focus.list()
+        const text =
+          paths.length > 0
+            ? `Focused paths:\n${paths.map((p) => `- ${p}`).join("\n")}`
+            : "No focused paths. Use /focus <path|glob> to scope the agent's attention."
+        return yield* infoMessage(input.sessionID, text)
+      }
+      if (arg === "clear") {
+        yield* focus.clear()
+        return yield* infoMessage(input.sessionID, "Focus cleared.")
+      }
+      const paths = yield* focus.add(arg)
+      return yield* infoMessage(
+        input.sessionID,
+        `Added focus: ${arg}\n\nFocused paths:\n${paths.map((p) => `- ${p}`).join("\n")}`,
+      )
+    })
+
     const command = Effect.fn("SessionPrompt.command")(function* (input: CommandInput) {
+      const name = input.command
+      if (name === "focus") return yield* handleFocus(input)
+
       yield* Effect.logInfo("command", {
         "session.id": input.sessionID,
         command: input.command,
@@ -1625,6 +1663,7 @@ export const node = LayerNode.make({
     EventV2Bridge.node,
     RuntimeFlags.node,
     Database.node,
+    Focus.node,
   ],
 })
 
