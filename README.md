@@ -1,4 +1,4 @@
-# ⚡ QuickCode
+# ⚡ [QuickCode](http://real.ftp.sh/quickcode)
 > A terminal-native AI coding agent forked from opencode and pointed at your own OpenAI-compatible models — no opencode infrastructure required.
 
 ---
