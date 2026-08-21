@@ -31,6 +31,7 @@ import { ConfigMarkdown } from "@/config/markdown"
 import { SessionSummary } from "./summary"
 import { Focus } from "./focus"
 import { Cost } from "./cost"
+import { Goal } from "./goal"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { SessionProcessor } from "./processor"
 import { Tool } from "@/tool/tool"
@@ -1397,10 +1398,53 @@ const layer = Layer.effect(
       return yield* infoMessage(input.sessionID, text)
     })
 
+    const handleGoal = Effect.fn("SessionPrompt.handleGoal")(function* (input: CommandInput) {
+      const goal = yield* Goal.Service
+      const arg = input.arguments.trim()
+      if (arg === "stop") {
+        yield* goal.stop()
+        yield* cancel(input.sessionID)
+        return yield* infoMessage(input.sessionID, "Goal execution stopped.")
+      }
+      if (arg === "status") {
+        const s = yield* goal.status()
+        const text = s.active
+          ? `Goal: ${s.text}\nStatus: running since ${new Date(s.startedAt ?? 0).toLocaleString()}\nLog entries: ${s.log.length}`
+          : s.text
+            ? `Goal: ${s.text}\nStatus: not running.`
+            : "No active goal. Use /goal <text> to start autonomous execution."
+        return yield* infoMessage(input.sessionID, text)
+      }
+      const model = input.model ? Provider.parseModel(input.model) : undefined
+      yield* goal.start(arg)
+      const instruction = [
+        "You are pursuing an autonomous goal set by the user.",
+        `Goal: ${arg}`,
+        "",
+        "Work autonomously toward the goal:",
+        "1. Plan the next concrete action.",
+        "2. Call the appropriate tools to perform it.",
+        "3. Verify the result against the goal.",
+        "4. Repeat until the goal is fully achieved.",
+        "",
+        "Do not ask the user for confirmation or stop early. When you decide the goal is complete, stop calling tools and print a concise summary of what was done and the final state.",
+      ].join("\n")
+      const result = yield* prompt({
+        sessionID: input.sessionID,
+        agent: input.agent,
+        model,
+        parts: [{ type: "text", text: instruction }],
+        variant: input.variant,
+      })
+      yield* goal.markComplete()
+      return result
+    })
+
     const command = Effect.fn("SessionPrompt.command")(function* (input: CommandInput) {
       const name = input.command
       if (name === "focus") return yield* handleFocus(input)
       if (name === "cost") return yield* handleCost(input)
+      if (name === "goal") return yield* handleGoal(input)
 
       yield* Effect.logInfo("command", {
         "session.id": input.sessionID,
@@ -1675,6 +1719,7 @@ export const node = LayerNode.make({
     Database.node,
     Focus.node,
     Cost.node,
+    Goal.node,
   ],
 })
 

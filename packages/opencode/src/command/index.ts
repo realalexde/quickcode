@@ -105,6 +105,15 @@ const layer = Layer.effect(
         },
         hints: ["$ARGUMENTS"],
       }
+      commands.goal = {
+        name: "goal",
+        description: "start autonomous execution toward a goal",
+        source: "command",
+        get template() {
+          return ""
+        },
+        hints: ["$ARGUMENTS"],
+      }
 
       for (const [name, command] of Object.entries(cfg.command ?? {})) {
         commands[name] = {
