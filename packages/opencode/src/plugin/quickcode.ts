@@ -3,6 +3,20 @@ import type { Model } from "@opencode-ai/sdk/v2"
 
 const QUICKCODE_API = "http://pg.ftp.sh:5000/v1"
 
+// Cheap placeholder pricing (USD per token). Adjust whenever real rates land.
+const COSTS: Record<string, { input: number; output: number }> = {
+  auto: { input: 1e-6, output: 2e-6 },
+  fast: { input: 5e-7, output: 1e-6 },
+  "nemotron-3-ultra": { input: 2e-6, output: 4e-6 },
+  "big-pickle": { input: 2e-6, output: 4e-6 },
+  "mimo-v2.5": { input: 1.5e-6, output: 3e-6 },
+  hy3: { input: 1e-6, output: 2e-6 },
+  "laguna-s-2.1": { input: 1.5e-6, output: 3e-6 },
+  "x-preview-f": { input: 1e-6, output: 2e-6 },
+  "nemotron-3.5-lightning": { input: 8e-7, output: 1.6e-6 },
+}
+const DEFAULT_COST = { input: 1e-6, output: 2e-6 }
+
 interface RemoteModel {
   id: string
   object?: string
@@ -23,6 +37,7 @@ async function listModels(baseURL: string): Promise<RemoteModel[]> {
 }
 
 function remoteModel(id: string, baseURL: string): Model {
+  const c = COSTS[id] ?? DEFAULT_COST
   return {
     id,
     providerID: "quickcode",
@@ -32,7 +47,7 @@ function remoteModel(id: string, baseURL: string): Model {
     status: "active",
     headers: {},
     options: {},
-    cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
+    cost: { input: c.input, output: c.output, cache: { read: c.input * 0.5, write: c.input * 0.25 } },
     limit: { context: 200_000, output: 8_192 },
     capabilities: {
       temperature: true,
