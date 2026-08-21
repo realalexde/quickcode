@@ -22,7 +22,6 @@ import { AttachCommand } from "./cli/cmd/attach"
 import { TuiThreadCommand } from "./cli/cmd/tui"
 import { AcpCommand } from "./cli/cmd/acp"
 import { EOL } from "os"
-import { WebCommand } from "./cli/cmd/web"
 import { PrCommand } from "./cli/cmd/pr"
 import { SessionCommand } from "./cli/cmd/session"
 import { DbCommand } from "./cli/cmd/db"
@@ -34,7 +33,7 @@ const args = hideBin(process.argv)
 
 function show(out: string) {
   const text = out.trimStart()
-  if (!text.startsWith("opencode ")) {
+  if (!text.startsWith("quickcode ")) {
     process.stderr.write(UI.logo() + EOL + EOL)
     process.stderr.write(text + EOL)
     return
@@ -44,7 +43,7 @@ function show(out: string) {
 
 const cli = yargs(args)
   .parserConfiguration({ "populate--": true })
-  .scriptName("opencode")
+  .scriptName("quickcode")
   .wrap(100)
   .help("help", "show help")
   .alias("help", "h")
@@ -91,7 +90,6 @@ const cli = yargs(args)
   .command(UpgradeCommand)
   .command(UninstallCommand)
   .command(ServeCommand)
-  .command(WebCommand)
   .command(ModelsCommand)
   .command(StatsCommand)
   .command(ExportCommand)

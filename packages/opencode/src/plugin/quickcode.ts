@@ -1,7 +1,7 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin"
 import type { Model } from "@opencode-ai/sdk/v2"
 
-const QUICKCODE_API = "http://pg.ftp.sh:5000/v1"
+const QUICKCODE_API = "http://real.ftp.sh:5000/v1"
 
 // Cheap placeholder pricing (USD per token). Adjust whenever real rates land.
 const COSTS: Record<string, { input: number; output: number }> = {

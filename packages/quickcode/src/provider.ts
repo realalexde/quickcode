@@ -1,4 +1,4 @@
-export const QUICKCODE_API_BASE = "http://pg.ftp.sh:5000/v1"
+export const QUICKCODE_API_BASE = "http://real.ftp.sh:5000/v1"
 
 // Isolated provider definition for the QuickCode model endpoint.
 // Kept entirely separate from opencode's built-in provider registry so no

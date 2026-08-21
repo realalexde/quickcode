@@ -64,6 +64,8 @@ export {
   oneDarkTheme,
   oneDarkProTheme,
   opencodeTheme,
+  quickcodeWhiteTheme,
+  quickcodeBlackTheme,
   orngTheme,
   osakaJadeTheme,
   palenightTheme,

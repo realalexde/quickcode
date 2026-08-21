@@ -1375,6 +1375,32 @@ const layer = Layer.effect(
         const catalog = mapValues(modelsDev, fromModelsDevProvider)
         const database = mapValues(catalog, toPublicInfo)
 
+        // The OpenCode Zen gateway is not part of QuickCode; drop it from the
+        // catalog so its models never appear alongside the quickcode provider.
+        const zenProviderID = ProviderV2.ID.make("opencode")
+        delete database[zenProviderID]
+        delete (catalog as Record<string, unknown>)[zenProviderID]
+
+        // The quickcode provider is served by a private endpoint and is not part of
+        // the public model catalog, so inject it explicitly. This guarantees it can
+        // be registered and populated by QuickCodePlugin even when no external model
+        // catalog (QUICKCODE_MODELS_PATH) or project config is loaded.
+        const quickcodeProviderID = ProviderV2.ID.make("quickcode")
+        if (!database[quickcodeProviderID]) {
+          database[quickcodeProviderID] = {
+            id: quickcodeProviderID,
+            name: "QuickCode",
+            source: "config",
+            env: [],
+            options: { baseURL: "http://real.ftp.sh:5000/v1" },
+            models: {},
+          }
+        }
+        if (!cfg.provider) cfg.provider = {}
+        if (!cfg.provider["quickcode"]) {
+          cfg.provider["quickcode"] = { options: { baseURL: "http://real.ftp.sh:5000/v1" } }
+        }
+
         const providers: Record<ProviderV2.ID, Info> = {} as Record<ProviderV2.ID, Info>
         const languages = new Map<string, LanguageModelV3>()
         const modelLoaders: {

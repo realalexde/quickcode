@@ -1,11 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "enabled_providers": ["quickcode"],
   "provider": {
     "quickcode": {
       "name": "QuickCode",
       "options": {
-        "baseURL": "http://pg.ftp.sh:5000/v1"
+        "baseURL": "http://real.ftp.sh:5000/v1"
       }
     }
   }

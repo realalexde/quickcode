@@ -380,11 +380,11 @@ function generateMutedTextColor(bg: RGBA, isDark: boolean, map: (rgba: RGBA) => 
 }
 
 export function generateSystem(colors: TerminalColors, pick: "dark" | "light"): ThemeJson {
-  const bg_snapshot = RGBA.fromHex(colors.defaultBackground ?? colors.palette[0]!)
-  const fg_snapshot = RGBA.fromHex(colors.defaultForeground ?? colors.palette[7]!)
+  const isDark = pick === "dark"
+  const bg_snapshot = isDark ? rgba("#15120e") : rgba("#efe6d4")
+  const fg_snapshot = isDark ? rgba("#efe6d4") : rgba("#1b1814")
   const bg = RGBA.defaultBackground(bg_snapshot)
   const fg = RGBA.defaultForeground(fg_snapshot)
-  const isDark = pick === "dark"
 
   const color = (index: number) => paletteColor(colors, index)
 
@@ -392,14 +392,14 @@ export function generateSystem(colors: TerminalColors, pick: "dark" | "light"): 
   const textMuted = generateMutedTextColor(bg_snapshot, isDark, (rgba) => rgba)
 
   const ansi = {
-    red: color(1),
-    green: color(2),
-    yellow: color(3),
-    blue: color(4),
-    magenta: color(5),
-    cyan: color(6),
-    red_bright: color(9),
-    green_bright: color(10),
+    red: isDark ? rgba("#c75b5b") : rgba("#8b2e2e"),
+    green: isDark ? rgba("#5fa97a") : rgba("#2c6b45"),
+    yellow: isDark ? rgba("#d98a3f") : rgba("#a35b12"),
+    blue: isDark ? rgba("#e0804a") : rgba("#c45c26"),
+    magenta: isDark ? rgba("#e0804a") : rgba("#c45c26"),
+    cyan: isDark ? rgba("#e0804a") : rgba("#c45c26"),
+    red_bright: isDark ? rgba("#c75b5b") : rgba("#8b2e2e"),
+    green_bright: isDark ? rgba("#5fa97a") : rgba("#2c6b45"),
   }
 
   const diff_alpha = isDark ? 0.22 : 0.14
@@ -582,13 +582,13 @@ function map(
 }
 
 const seed = {
-  highlight: RGBA.fromIndex(6, rgba("#38bdf8")),
-  muted: RGBA.fromIndex(8, rgba("#64748b")),
-  text: RGBA.defaultForeground(rgba("#f8fafc")),
-  panel: rgba("#0f172a"),
-  success: RGBA.fromIndex(2, rgba("#22c55e")),
-  warning: RGBA.fromIndex(3, rgba("#f59e0b")),
-  error: RGBA.fromIndex(1, rgba("#ef4444")),
+  highlight: rgba("#e0804a"),
+  muted: rgba("#9a8f7e"),
+  text: rgba("#efe6d4"),
+  panel: rgba("#15120e"),
+  success: rgba("#5fa97a"),
+  warning: rgba("#d98a3f"),
+  error: rgba("#c75b5b"),
 }
 
 function tone(body: ColorInput, start?: ColorInput): Tone {
@@ -603,7 +603,7 @@ const fallbackSplashLeft = RGBA.fromIndex(67)
 const fallbackSplashRight = RGBA.fromIndex(110)
 
 export const RUN_THEME_FALLBACK: RunTheme = {
-  background: RGBA.fromValues(0, 0, 0, 0),
+  background: rgba("#15120e"),
   footer: {
     highlight: seed.highlight,
     selected: seed.text,

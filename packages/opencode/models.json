@@ -1,6 +1,6 @@
 {
   "quickcode": {
-    "api": "http://pg.ftp.sh:5000/v1",
+    "api": "http://real.ftp.sh:5000/v1",
     "name": "QuickCode",
     "env": [],
     "id": "quickcode",

@@ -70,6 +70,8 @@ const names: Record<string, string> = {
   "one-dark": "One Dark",
   onedarkpro: "One Dark Pro",
   opencode: "OpenCode",
+  "quickcode-white": "White QuickCode",
+  "quickcode-black": "Black QuickCode",
   orng: "Orng",
   "osaka-jade": "Osaka Jade",
   palenight: "Palenight",
@@ -177,7 +179,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     defaultTheme?: string
     onThemeApplied?: (theme: DesktopTheme, mode: "light" | "dark", scheme: ColorScheme) => void
   }) => {
-    const themeId = normalize(read(STORAGE_KEYS.THEME_ID) ?? props.defaultTheme) ?? "oc-2"
+    const themeId = normalize(read(STORAGE_KEYS.THEME_ID) ?? props.defaultTheme) ?? "quickcode-black"
     const colorScheme = (read(STORAGE_KEYS.COLOR_SCHEME) as ColorScheme | null) ?? "system"
     const mode = colorScheme === "system" ? getSystemMode() : colorScheme
     const [store, setStore] = createStore({
@@ -263,7 +265,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
       makeEventListener(mediaQuery, "change", onMedia)
 
       const rawTheme = read(STORAGE_KEYS.THEME_ID)
-      const savedTheme = normalize(rawTheme ?? props.defaultTheme) ?? "oc-2"
+      const savedTheme = normalize(rawTheme ?? props.defaultTheme) ?? "quickcode-black"
       const savedScheme = (read(STORAGE_KEYS.COLOR_SCHEME) as ColorScheme | null) ?? "system"
       if (rawTheme && rawTheme !== savedTheme) {
         write(STORAGE_KEYS.THEME_ID, savedTheme)

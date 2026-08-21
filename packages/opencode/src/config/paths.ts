@@ -13,8 +13,9 @@ export const files = Effect.fn("ConfigPaths.projectFiles")(function* (
   worktree?: string,
 ) {
   const afs = yield* FSUtil.Service
+  const names = unique([name, "quickcode", "opencode"])
   return (yield* afs.up({
-    targets: [`${name}.jsonc`, `${name}.json`],
+    targets: names.flatMap((n) => [`${n}.jsonc`, `${n}.json`]),
     start: directory,
     stop: worktree,
   })).toReversed()
