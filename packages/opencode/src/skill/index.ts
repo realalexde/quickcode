@@ -17,6 +17,7 @@ import { Glob } from "@opencode-ai/core/util/glob"
 import { Discovery } from "./discovery"
 import { isRecord } from "@/util/record"
 import { escapeHtml } from "@/util/html"
+import { BETTER_MARKDOWN_SKILL_BODY } from "./better-markdown"
 
 const CLAUDE_EXTERNAL_DIR = ".claude"
 const AGENTS_EXTERNAL_DIR = ".agents"
@@ -33,6 +34,10 @@ const CUSTOMIZE_QUICKCODE_SKILL_NAME = "customize-opencode"
 const CUSTOMIZE_QUICKCODE_SKILL_DESCRIPTION =
   "Use ONLY when the user is editing or creating opencode's own configuration: quickcode.json, quickcode.jsonc, files under .quickcode/, or files under ~/.config/quickcode/. Also use when creating or fixing opencode agents, subagents, skills, plugins, MCP servers, or permission rules. Do not use for the user's own application code, or for any project that is not configuring opencode itself."
 const CUSTOMIZE_QUICKCODE_SKILL_BODY = SkillPlugin.CustomizeOpencodeContent
+
+const BETTER_MARKDOWN_SKILL_NAME = "better-markdown"
+const BETTER_MARKDOWN_SKILL_DESCRIPTION =
+  "Write or rewrite GitHub READMEs in realalexde's clean, minimal, structured style. Always trigger for any README request, especially for developer tools, bots, scripts, CLI utilities, or open-source projects."
 
 export const Info = Schema.Struct({
   name: Schema.String,
@@ -280,6 +285,12 @@ const layer = Layer.effect(
           description: CUSTOMIZE_QUICKCODE_SKILL_DESCRIPTION,
           location: "<built-in>",
           content: CUSTOMIZE_QUICKCODE_SKILL_BODY,
+        }
+        s.skills[BETTER_MARKDOWN_SKILL_NAME] = {
+          name: BETTER_MARKDOWN_SKILL_NAME,
+          description: BETTER_MARKDOWN_SKILL_DESCRIPTION,
+          location: "<built-in>",
+          content: BETTER_MARKDOWN_SKILL_BODY,
         }
         yield* loadSkills(s, yield* InstanceState.get(discovered), events)
         return s
